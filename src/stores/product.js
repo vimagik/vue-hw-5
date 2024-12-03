@@ -30,5 +30,5 @@ export const useProductStore = defineStore("product", () => {
         }
     }
 
-    return { filteredData, getProducts, activateFilter };
+    return { productsData, filteredData, getProducts, activateFilter };
 });
