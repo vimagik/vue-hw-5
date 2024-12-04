@@ -1,11 +1,11 @@
 <script setup>
+import { useUserStore } from '@/stores/user'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 
 const loginForm = ref(null)
 const userName = ref(null)
 const pass = ref(null)
-const router = useRouter();
+const store = useUserStore()
 
 
 const rules = {
@@ -16,10 +16,7 @@ const rules = {
 
 const LoginSubmit = async function () {
     const { valid } = await loginForm.value.validate()
-    if (valid) {
-        localStorage.setItem("user", userName.value)
-        router.push('/')
-    }
+    if (valid) store.login(userName.value)
 }
 </script>
 
