@@ -1,5 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { useCartStore } from '@/stores/cart';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue'
 
 const formForSubmit = ref({
     fio: null,
@@ -22,33 +24,19 @@ const rules = {
 const status = ref(null)
 const formCard = ref(null);
 
+const store = useCartStore();
+const { cartToArray } = storeToRefs(store);
+
 const formSubmit = async function () {
     const { valid } = await formCard.value.validate()
-    if (valid && cart.value.length > 0) {
-        formForSubmit.value["order"] = cart.value
+    if (valid && cartToArray.value.length > 0) {
+        formForSubmit.value["order"] = cartToArray.value
         fetch("https://httpbin.org/post", {
             method: "POST",
             body: JSON.stringify(formForSubmit.value)
         }).then((res) => status.value = res.status)
     }
 }
-
-const cart = ref([])
-
-const clearCart = function () {
-    cart.value = []
-    localStorage.setItem('cart', JSON.stringify({}))
-}
-
-
-onMounted(() => {
-    const cartData = JSON.parse(localStorage.getItem('cart'))
-    cart.value = Object.entries(cartData).map((el) => el[1])
-})
-
-const totalCost = computed(() => {
-    return cart.value.reduce((accumulator, currValue) => accumulator + currValue.amount * currValue.price, 0).toFixed(2)
-})
 </script>
 
 <template>
@@ -82,7 +70,7 @@ const totalCost = computed(() => {
             </v-col>
             <v-col>
                 <v-card prepend-icon="mdi-cart-check" title="Корзина">
-                    <v-card-text v-if="cart">
+                    <v-card-text v-if="cartToArray">
                         <v-table>
                             <thead>
                                 <tr>
@@ -93,7 +81,7 @@ const totalCost = computed(() => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in cart">
+                                <tr v-for="item in cartToArray">
                                     <th>{{ item.title }}</th>
                                     <th>{{ item.amount }}</th>
                                     <th>{{ item.price }}</th>
@@ -101,8 +89,8 @@ const totalCost = computed(() => {
                                 </tr>
                             </tbody>
                         </v-table>
-                        <p class="mt-3 text-subtitle-2">Итого к оплате: {{ totalCost }} тубрика</p>
-                        <v-btn class="mt-3" @click="clearCart">Очистить корзину</v-btn>
+                        <p class="mt-3 text-subtitle-2">Итого к оплате: {{ store.totalCost }} тубрика</p>
+                        <v-btn class="mt-3" @click="store.clearCart">Очистить корзину</v-btn>
                     </v-card-text>
                 </v-card>
             </v-col>

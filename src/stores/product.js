@@ -30,5 +30,12 @@ export const useProductStore = defineStore("product", () => {
         }
     }
 
-    return { productsData, filteredData, getProducts, activateFilter };
+    function getProductById(productId) {
+        return originalData.value.find((el) => el.id === productId)
+    }
+
+    return {
+        originalData, filteredData, getProducts,
+        activateFilter, getProductById
+    };
 });
